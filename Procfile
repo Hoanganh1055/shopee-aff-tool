@@ -1,0 +1,1 @@
+web: gunicorn chay_web:app

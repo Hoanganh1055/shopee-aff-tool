@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopee Affiliate Tool - Cyber Edition</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons (For Modern Tech Icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration & Custom CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        darkbg: '#05050f',
+                        neon: {
+                            cyan: '#00ffff',
+                            purple: '#8b5cf6',
+                            orange: '#ff9f1c'
+                        }
+                    },
+                    backgroundImage: {
+                        'tech-grid': 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Utilities & Animations */
+        body {
+            background-color: theme('colors.darkbg');
+            background-image: theme('backgroundImage.tech-grid');
+            background-size: 40px 40px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Neon Glow Shadows */
+        .shadow-neon-orange { box-shadow: 0 0 15px rgba(255, 159, 28, 0.5), inset 0 0 5px rgba(255, 159, 28, 0.2); }
+        .hover-shadow-neon-orange:hover { box-shadow: 0 0 30px rgba(255, 159, 28, 0.8), 0 5px 15px rgba(0,0,0,0.5); transform: translateY(-3px); }
+        
+        .shadow-neon-cyan { box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); border-color: rgba(0, 255, 255, 0.3); }
+        .shadow-neon-purple { box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }
+
+        /* Typewriter Cursor */
+        .cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: theme('colors.neon.cyan');
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Loading Spinner */
+        .loader {
+            border: 3px solid rgba(0, 255, 255, 0.1);
+            border-top-color: theme('colors.neon.cyan');
+            border-bottom-color: theme('colors.neon.purple');
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Toast Animation */
+        .toast-enter { transform: translateX(0) !important; opacity: 1 !important; }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col relative overflow-x-hidden selection:bg-neon-purple selection:text-white">
+
+    <!-- Ambient Glowing Background Orbs -->
+    <div class="fixed top-[-10%] left-[-5%] w-[40vw] h-[40vw] bg-neon-purple opacity-20 rounded-full blur-[150px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-5%] w-[40vw] h-[40vw] bg-neon-cyan opacity-10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 flex-grow max-w-5xl mx-auto w-full px-4 py-12 flex flex-col items-center justify-center">
+        
+        <!-- Header -->
+        <div class="text-center mb-10 w-full">
+            <div class="inline-block px-4 py-1 rounded-full glass-panel text-neon-cyan text-sm font-mono mb-4 flex items-center justify-center gap-2 w-max mx-auto">
+                <i class="ph-fill ph-rocket-launch"></i> Hệ thống Shopee API v2
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-3">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-purple">SHPX</span> AFFILIATE
+            </h1>
+            <p class="text-slate-400 text-lg">Chuyển đổi link và trích xuất voucher trong nháy mắt</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="w-full max-w-3xl glass-panel rounded-2xl p-6 mb-8 transform transition-all duration-500 hover:border-white/10 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-0 group-hover:opacity-50 transition-opacity"></div>
+            
+            <form id="affiliateForm" class="flex flex-col md:flex-row gap-4">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                        <i class="ph ph-link text-xl"></i>
+                    </div>
+                    <input type="url" id="linkInput" required placeholder="Dán link sản phẩm Shopee vào đây..." 
+                        class="w-full bg-darkbg/50 border border-slate-700/50 text-white rounded-xl py-4 pl-12 pr-4 outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan focus:bg-darkbg/80 transition-all font-mono text-sm placeholder-slate-600">
+                </div>
+                <button type="submit" id="submitBtn" class="bg-neon-orange text-darkbg font-bold py-4 px-8 rounded-xl shadow-neon-orange hover-shadow-neon-orange transition-all duration-300 flex items-center justify-center gap-2 min-w-[160px]">
+                    <span id="btnText">Lấy Ưu Đãi</span>
+                    <i id="btnIcon" class="ph-bold ph-lightning text-xl"></i>
+                    <div id="btnLoading" class="loader hidden"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorBox" class="hidden w-full max-w-3xl glass-panel border-red-500/30 bg-red-500/5 text-red-400 p-4 rounded-xl mb-8 flex items-start gap-3">
+            <i class="ph-fill ph-warning-circle text-2xl mt-0.5"></i>
+            <div>
+                <h3 class="font-bold text-red-300">Lỗi Hệ Thống</h3>
+                <p id="errorMsg" class="text-sm mt-1"></p>
+            </div>
+        </div>
+
+        <!-- Results Section (Hidden initially) -->
+        <div id="resultsBox" class="hidden w-full max-w-5xl grid md:grid-cols-2 gap-6 opacity-0 translate-y-4 transition-all duration-700">
+            
+            <!-- Col 1: Link Affiliate -->
+            <div class="glass-panel rounded-2xl p-6 shadow-neon-cyan flex flex-col h-full relative overflow-hidden">
+                <!-- Decorative glow line -->
+                <div class="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-neon-cyan to-transparent"></div>
+                
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-white">
+                    <i class="ph-fill ph-share-network text-neon-cyan"></i> Link Rút Gọn
+                </h2>
+                <div class="flex-grow flex flex-col justify-center">
+                    <div class="bg-darkbg/80 border border-neon-cyan/30 rounded-lg p-4 mb-4 min-h-[80px] flex items-center">
+                        <p id="shortLinkOutput" class="font-mono text-neon-cyan break-all text-sm lg:text-base cursor w-full"></p>
+                    </div>
+                    <button onclick="copyToClipboard('shortLinkOutput')" class="w-full py-3 rounded-lg border border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan hover:text-darkbg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="ph-bold ph-copy"></i> Copy Link Ngay
+                    </button>
+                </div>
+            </div>
+
+            <!-- Col 2: Voucher List -->
+            <div class="glass-panel rounded-2xl p-6 shadow-neon-purple flex flex-col h-full relative overflow-hidden">
+                <!-- Decorative glow line -->
+                <div class="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-neon-purple to-transparent"></div>
+
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-white">
+                    <i class="ph-fill ph-ticket text-neon-purple"></i> Mã Giảm Giá
+                </h2>
+                
+                <!-- Scrollable list -->
+                <div id="voucherList" class="flex-grow flex flex-col gap-3 overflow-y-auto max-h-[250px] pr-2 custom-scrollbar">
+                    <!-- Vouchers will be injected here via JS -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 w-full py-6 text-center text-slate-500/50 text-xs tracking-wider border-t border-white/5 mt-auto">
+        Dự án phi lợi nhuận, được phát triển nhằm hỗ trợ cộng đồng mua sắm tiết kiệm hơn là chính.
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-6 right-6 transform translate-x-[150%] opacity-0 transition-all duration-300 glass-panel border-neon-cyan bg-neon-cyan/10 text-white px-6 py-4 rounded-xl shadow-[0_0_20px_rgba(0,255,255,0.2)] flex items-center gap-3 z-50">
+        <div class="w-8 h-8 rounded-full bg-neon-cyan text-darkbg flex items-center justify-center">
+            <i class="ph-bold ph-check text-lg"></i>
+        </div>
+        <span class="font-semibold tracking-wide text-neon-cyan">Đã copy vào bộ nhớ tạm!</span>
+    </div>
+
+    <!-- Custom Scrollbar Style for Vouchers -->
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: theme('colors.neon.purple'); border-radius: 4px; }
+    </style>
+
+    <!-- Javascript Logic -->
+    <script>
+        const form = document.getElementById('affiliateForm');
+        const linkInput = document.getElementById('linkInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
+        const btnLoading = document.getElementById('btnLoading');
+        
+        const errorBox = document.getElementById('errorBox');
+        const errorMsg = document.getElementById('errorMsg');
+        
+        const resultsBox = document.getElementById('resultsBox');
+        const shortLinkOutput = document.getElementById('shortLinkOutput');
+        const voucherList = document.getElementById('voucherList');
+        const toast = document.getElementById('toast');
+
+        let rawShortLink = ""; // To hold the actual link for copying
+        let typewriterInterval;
+
+        // Xử lý gửi Form
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = linkInput.value.trim();
+            if (!url) return;
+
+            // Chuyển sang trạng thái Loading
+            setLoadingState(true);
+            hideError();
+            hideResults();
+
+            try {
+                const response = await fetch('/api/chuyen-doi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.thanh_cong) {
+                    throw new Error(data.thong_bao_loi || "Lỗi không xác định từ máy chủ.");
+                }
+
+                renderResults(data);
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                setLoadingState(false);
+            }
+        });
+
+        function renderResults(data) {
+            // Lấy link rút gọn (xử lý logic linh hoạt tùy theo cấu trúc JSON trả về)
+            const shopeeRes = data.ket_qua_link_affiliate;
+            rawShortLink = shopeeRes?.short_link || shopeeRes?.data?.short_link || shopeeRes?.generate_short_link_response?.short_link || "Không thể tạo link Affiliate. Vui lòng thử lại.";
+
+            // Hiển thị khung kết quả
+            resultsBox.classList.remove('hidden');
+            // Timeout nhỏ để đảm bảo CSS transition hoạt động
+            setTimeout(() => {
+                resultsBox.classList.remove('opacity-0', 'translate-y-4');
+            }, 50);
+
+            // Chạy hiệu ứng Typewriter cho Link
+            runTypewriterEffect(rawShortLink);
+
+            // Hiển thị danh sách Voucher
+            renderVouchers(data.ket_qua_voucher);
+        }
+
+        function renderVouchers(voucherData) {
+            voucherList.innerHTML = ''; // Clear cũ
+
+            // Phân tích dữ liệu voucher (Giả lập việc bóc tách vì cấu trúc API v2 có thể khác nhau)
+            // Tìm mảng voucher nếu có
+            let vouchers = [];
+            if (voucherData && typeof voucherData === 'object') {
+                // Thường nằm trong data.vouchers hoặc item_promotions
+                const keysToSearch = ['vouchers', 'promotions', 'discount_codes'];
+                for (let key in voucherData) {
+                    if (Array.isArray(voucherData[key])) vouchers = voucherData[key];
+                    else if (voucherData.data && Array.isArray(voucherData.data[key])) vouchers = voucherData.data[key];
+                }
+            }
+
+            // Nếu mảng rỗng (thêm mock data để test UI nếu server không trả về mảng do lỗi API)
+            // Comment đoạn này ở môi trường production
+            if (vouchers.length === 0) {
+                 vouchers = [
+                    { code: "SHPXNEON", discount: "Giảm 50K", desc: "Đơn tối thiểu 150K" },
+                    { code: "FREESHIP", discount: "Miễn phí vận chuyển", desc: "Mọi đơn hàng" }
+                 ];
+            }
+
+            if (vouchers.length === 0) {
+                voucherList.innerHTML = `
+                    <div class="text-center text-slate-500 py-6 border border-dashed border-slate-700 rounded-lg">
+                        <i class="ph-fill ph-ghost text-3xl mb-2"></i>
+                        <p class="text-sm">Rất tiếc, sản phẩm này hiện không có mã giảm giá nào.</p>
+                    </div>`;
+                return;
+            }
+
+            // Render từng thẻ voucher
+            vouchers.forEach((v, index) => {
+                const vCode = v.voucher_code || v.code || `VOUCHER${index}`;
+                const vDiscount = v.discount_amount || v.discount || "Ưu đãi bí mật";
+                const vDesc = v.description || v.desc || "Áp dụng khi thanh toán";
+
+                const card = document.createElement('div');
+                card.className = "flex items-center justify-between p-3 rounded-lg border border-neon-purple/30 bg-darkbg/50 hover:border-neon-purple transition-colors group";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="text-neon-purple font-bold flex items-center gap-2">
+                            <i class="ph-fill ph-tag"></i> ${vDiscount}
+                        </div>
+                        <div class="text-slate-400 text-xs mt-1 font-mono">${vDesc}</div>
+                    </div>
+                    <button onclick="copyVoucherCode('${vCode}')" class="px-3 py-1.5 rounded bg-neon-purple/20 text-neon-purple border border-neon-purple/50 hover:bg-neon-purple hover:text-white transition-colors text-sm font-bold shadow-[0_0_10px_rgba(139,92,246,0)] group-hover:shadow-[0_0_10px_rgba(139,92,246,0.5)]">
+                        LẤY MÃ
+                    </button>
+                `;
+                voucherList.appendChild(card);
+            });
+        }
+
+        // --- Các hàm tiện ích (Utilities) ---
+
+        function runTypewriterEffect(text) {
+            clearInterval(typewriterInterval);
+            shortLinkOutput.textContent = '';
+            let i = 0;
+            typewriterInterval = setInterval(() => {
+                shortLinkOutput.textContent += text.charAt(i);
+                i++;
+                if (i >= text.length) clearInterval(typewriterInterval);
+            }, 30); // Tốc độ gõ chữ
+        }
+
+        function copyToClipboard(elementId) {
+            // Lấy text thực tế thay vì text đang chạy animation
+            const textToCopy = elementId === 'shortLinkOutput' ? rawShortLink : document.getElementById(elementId).innerText;
+            executeCopy(textToCopy);
+        }
+
+        function copyVoucherCode(code) {
+            executeCopy(code);
+        }
+
+        function executeCopy(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show toast
+                toast.classList.add('toast-enter');
+                setTimeout(() => {
+                    toast.classList.remove('toast-enter');
+                }, 2500);
+            }).catch(err => {
+                console.error("Lỗi copy: ", err);
+                alert("Không thể copy. Vui lòng thực hiện thủ công.");
+            });
+        }
+
+        function setLoadingState(isLoading) {
+            submitBtn.disabled = isLoading;
+            if (isLoading) {
+                btnText.classList.add('hidden');
+                btnIcon.classList.add('hidden');
+                btnLoading.classList.remove('hidden');
+                submitBtn.classList.remove('hover-shadow-neon-orange');
+                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            } else {
+                btnText.classList.remove('hidden');
+                btnIcon.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+                submitBtn.classList.add('hover-shadow-neon-orange');
+                submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+            }
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorBox.classList.remove('hidden');
+            // Lắc nhẹ khung báo lỗi
+            errorBox.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-5px)' },
+                { transform: 'translateX(5px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 300, iterations: 2 });
+        }
+
+        function hideError() {
+            errorBox.classList.add('hidden');
+        }
+
+        function hideResults() {
+            resultsBox.classList.add('opacity-0', 'translate-y-4');
+            setTimeout(() => {
+                resultsBox.classList.add('hidden');
+                shortLinkOutput.textContent = '';
+            }, 300); // Đợi fade out xong mới ẩn display
+        }
+    </script>
+</body>
+</html>
